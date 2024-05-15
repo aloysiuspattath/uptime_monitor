@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    select#dateRange.form-control.select1 {
+        width: auto !important;
+    }
+    
+</style>
+<h1 class="mt-4">Website Dashboard</h1>
+<div>
+    <p><strong>Name:</strong> {{ website.name }}</p>
+    <p><strong>URL:</strong> {{ website.url }}</p>
+    <p><strong>Status:</strong> 
+        {% if website.status == "200" %}
+        <span class="badge badge-success">Alive</span>
+        {% elif website.status == "404" %}
+        <span class="badge badge-danger">Not Found</span>
+        {% elif website.status == "503" %}
+        <span class="badge badge-warning">Server Error</span>
+        {% else %}
+        <span class="badge badge-secondary">Unknown</span>
+        {% endif %}
+    </p>
+    <p><strong>Last Down Time:</strong> {{ last_down_time|default("N/A") }}</p>
+    <p><strong>Domain Expiry:</strong> 
+        {% if website.domain_expiry %}
+        {% set days_remaining = (website.domain_expiry - now).days %}
+        {% if days_remaining > 60 %}
+        {{ website.domain_expiry }} <span class="badge badge-success">{{ days_remaining }} days remaining</span>
+        {% elif days_remaining > 45 %}
+        {{ website.domain_expiry }} <span class="badge badge-warning">{{ days_remaining }} days remaining</span>
+        {% elif days_remaining > 30 %}
+        {{ website.domain_expiry }} <span class="badge badge-orange">{{ days_remaining }} days remaining</span>
+        {% else %}
+        {{ website.domain_expiry }} <span class="badge badge-danger">{{ days_remaining }} days remaining</span>
+        {% endif %}
+        {% else %}
+        N/A
+        {% endif %}
+    </p>
+    <p><strong>SSL Expiry:</strong> 
+        {% if website.ssl_expiry %}
+        {% set days_remaining = (website.ssl_expiry - now).days %}
+        {% if days_remaining > 60 %}
+        {{ website.ssl_expiry }} <span class="badge badge-success">{{ days_remaining }} days remaining</span>
+        {% elif days_remaining > 45 %}
+        {{ website.ssl_expiry }} <span class="badge badge-warning">{{ days_remaining }} days remaining</span>
+        {% elif days_remaining > 30 %}
+        {{ website.ssl_expiry }} <span class="badge badge-orange">{{ days_remaining }} days remaining</span>
+        {% else %}
+        {{ website.ssl_expiry }} <span class="badge badge-danger">{{ days_remaining }} days remaining</span>
+        {% endif %}
+        {% else %}
+        N/A
+        {% endif %}
+    </p>
+    
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <label for="dateRange">Select Date Range:</label>
+        <select id="dateRange" class="form-control select1" onchange="updateChartData()">
+            <option value="1">Last 24 hours</option>
+            <option value="2">Last 48 hours</option>
+            <option value="7">Last 7 days</option>
+            <option value="15">Last 15 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+        </select>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <!-- Add a canvas element for the chart -->
+        <canvas id="statusHistoryChart" width="800" height="400"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+
+<script>
+    let timestamps = [];
+    let statusCodes = [];
+
+    // Function to fetch status history data for the specified website ID
+    function getStatusHistory(websiteId) {
+        fetch(`/website/${websiteId}/status_history`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Received data:', data); // Log the received data
+                const statusHistory = data.status_history;
+                console.log('Status history:', statusHistory); // Log the status history
+
+                // Extract timestamps and status codes from the data
+                timestamps = statusHistory.map(entry => parseTimestamp(entry.timestamp));
+                statusCodes = statusHistory.map(entry => entry.status_code);
+
+                // Filter data based on selected date range
+                updateChartData();
+            })
+            .catch(error => {
+                console.error('Error fetching status history:', error);
+            });
+    }
+
+    // Function to parse timestamp string into a Date object
+    function parseTimestamp(timestampString) {
+        if (!timestampString) {
+            return null; // Return null if timestampString is undefined
+        }
+
+        // Split the timestamp string into date and time parts
+        const [datePart, timePart] = timestampString.split(' ');
+
+        // Split the date part into year, month, and day
+        const [year, month, day] = datePart.split('-');
+
+        // Split the time part into hour, minute, and second
+        const [hour, minute, second] = timePart.split(':');
+
+        // Create a new Date object with parsed values
+        return new Date(year, month - 1, day, hour, minute, second);
+    }
+
+    // Function to update chart data based on selected date range
+    function updateChartData() {
+        const selectedRange = document.getElementById('dateRange').value;
+        const filteredData = filterData(timestamps, statusCodes, selectedRange);
+        createChart(filteredData.timestamps, filteredData.statusCodes);
+    }
+
+    // Function to filter data based on selected date range
+    function filterData(timestamps, statusCodes, days) {
+        const filteredData = [];
+        const now = new Date();
+        const daysAgo = new Date(now.getTime() - days * 24 * 60 * 60 * 1000); // Calculate days ago
+
+        for (let i = 0; i < timestamps.length; i++) {
+            if (timestamps[i] >= daysAgo) {
+                filteredData.push({ timestamp: timestamps[i], statusCode: statusCodes[i] });
+            }
+        }
+
+        return {
+            timestamps: filteredData.map(entry => entry.timestamp),
+            statusCodes: filteredData.map(entry => entry.statusCode)
+        };
+    }
+
+    // Function to create the chart using Chart.js
+    function createChart(timestamps, statusCodes) {
+        // Get the canvas element
+        const ctx = document.getElementById('statusHistoryChart').getContext('2d');
+        // Destroy the existing chart if it exists
+        Chart.getChart(ctx)?.destroy();
+        // Define the colors for different status codes
+        const colors = statusCodes.map(code => code === 200 ? 'rgba(75, 192, 192, 0.2)' : 'rgba(255, 99, 132, 0.2)');
+
+        // Create the chart
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timestamps, // Use timestamps as labels for x-axis
+                datasets: [{
+                    label: 'Status Code',
+                    data: statusCodes,
+                    backgroundColor: colors,
+                    borderColor: colors.map(color => color.replace('0.2', '1')),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'time', // Specify type as time for x-axis
+                        time: {
+                            unit: 'minute', // Change time unit to 'minute'
+                            displayFormats: {
+                                minute: 'MMM D, HH:mm' // Format for displaying date and time
+                            }
+                        }
+                    },
+                    y: { // Set the minimum value for the y-axis
+                        beginAtZero: false // Ensure the y-axis does not start from zero
+                    }
+                },
+                plugins: {
+                    zoom: {
+                        pan: {
+                            enabled: true,
+                            mode: 'xy',
+                            rangeMin: {
+                                x: null,
+                                y: null
+                            },
+                            rangeMax: {
+                                x: null,
+                                y: null
+                            }
+                        },
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                            },
+                            pinch: {
+                                enabled: true
+                            },
+                            mode: 'x',
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // On page load, fetch status history for the website and create the chart
+    window.onload = function() {
+        // Extract website ID from the URL (assuming it's in the format /website/<id>/dashboard)
+        const websiteId = window.location.pathname.split('/')[2];
+
+        // Fetch status history for the website
+        getStatusHistory(websiteId);
+    };
+</script>
+<script>
+    function refreshPage() {
+        location.reload(); // Reload the page
+    }
+
+    // Call the refreshPage function every minute (60,000 milliseconds)
+    setInterval(refreshPage, 60000);
+</script>
+{% endblock %}

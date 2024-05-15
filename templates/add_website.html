@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h1>Add Website</h1>
+    <form action="{{ url_for('add_website') }}" method="post">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="url">URL:</label>
+            <input type="text" class="form-control" id="url" name="url" required>
+        </div>
+        <div class="form-group">
+            <label for="interval">Checking Interval (seconds):</label>
+            <input type="number" class="form-control" id="interval" name="interval" min="1" value="60" required>
+        </div>
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="email_notifications" name="email_notifications">
+            <label class="form-check-label" for="email_notifications">Enable Email Notifications</label>
+        </div>
+        <div class="form-group" id="email_notification_email_div" style="display: none;">
+            <label for="email_notification_email">Email Notification Email:</label>
+            <input type="email" class="form-control" id="email_notification_email" name="email_notification_email">
+        </div>
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="telegram_notifications" name="telegram_notifications">
+            <label class="form-check-label" for="telegram_notifications">Enable Telegram Notifications</label>
+        </div>
+        <div class="form-group" id="telegram_notification_phone_div" style="display: none;">
+            <label for="telegram_notification_phone">Telegram Notification Phone Number:</label>
+            <input type="text" class="form-control" id="telegram_notification_phone" name="telegram_notification_phone">
+        </div>
+        <button type="submit" class="btn btn-primary">Add Website</button>
+    </form>
+</div>
+<script>
+    // Toggle email notification email input based on checkbox state
+    document.getElementById('email_notifications').addEventListener('change', function() {
+        var emailNotificationEmailDiv = document.getElementById('email_notification_email_div');
+        if (this.checked) {
+            emailNotificationEmailDiv.style.display = 'block';
+        } else {
+            emailNotificationEmailDiv.style.display = 'none';
+        }
+    });
+
+    // Toggle Telegram notification phone number input based on checkbox state
+    document.getElementById('telegram_notifications').addEventListener('change', function() {
+        var telegramNotificationPhoneDiv = document.getElementById('telegram_notification_phone_div');
+        if (this.checked) {
+            telegramNotificationPhoneDiv.style.display = 'block';
+        } else {
+            telegramNotificationPhoneDiv.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

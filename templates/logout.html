@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h1 class="mt-4">Logout</h1>
+    <p>Are you sure you want to logout?</p>
+    <form id="logoutForm" action="{{ url_for('logout') }}" method="post">
+        <button type="submit" class="btn btn-primary">Logout</button>
+    </form>
+</div>
+
+<script>
+    // Function to show confirmation dialog before submitting the form
+    function confirmLogout() {
+        if (confirm("Are you sure you want to logout?")) {
+            document.getElementById("logoutForm").submit(); // Submit the form if user clicks OK
+        }
+    }
+</script>
+{% endblock %}

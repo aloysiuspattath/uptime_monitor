@@ -1,0 +1,163 @@
+/* styles.css */
+
+
+.days-remaining-badge {
+    font-weight: bold;
+    font-size: 16px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background-color: red; /* Change background color as desired */
+}
+
+/* CSS for flash message popup */
+/* CSS for flash message popup */
+.flash-message-container {
+    position: fixed;
+    top: 20px; /* Adjust as needed */
+    right: 20px; /* Adjust as needed */
+    z-index: 1000; /* Ensure it's above other content */
+}
+
+.flash-messages {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Align items to the right */
+}
+
+.flash-message {
+    max-width: 300px; /* Adjust as needed */
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: #07c75d; /* Primary color */
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.flash-message.show {
+    opacity: 1;
+}
+
+/* Hide flash message after a few seconds */
+@keyframes hideMessage {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.flash-message.hide {
+    animation: hideMessage 3s forwards;
+}
+
+
+/* Reset default browser styles
+body, h1, h2, p, input, button {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Container styles
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+} */
+
+/* Website styles */
+.website {
+    background-color: #f9f9f9;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.website h2 {
+    margin-bottom: 10px;
+}
+
+.website p {
+    margin-bottom: 10px;
+}
+
+/* Delete button styles */
+.delete-btn {
+    background-color: #dc3545;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* Success message styles */
+.success-msg {
+    color: #28a745;
+    margin-bottom: 20px;
+}
+
+/* Your CSS styles here */
+
+/* Container styles
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+} */
+
+/* Website item styles */
+.website-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+/* Website name styles */
+.website-name {
+    font-size: 20px;
+    font-weight: bold;
+} */
+
+/* Website URL styles */
+.website-url {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+/* Status history styles */
+.status-history {
+    margin-bottom: 10px;
+}
+
+/* Status history item styles */
+.status-history-item {
+    margin-bottom: 5px;
+}
+
+/* Timestamp styles */
+.timestamp {
+    font-size: 14px;
+    color: #777;
+}
+
+/* Status code styles */
+.status-code {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* OK status code styles */
+.status-code-ok {
+    color: green;
+}
+
+/* Unknown status code styles */
+.status-code-unknown {
+    color: orange;
+}
+
+/* form */
+.form-control {
+width: auto !important;
+}

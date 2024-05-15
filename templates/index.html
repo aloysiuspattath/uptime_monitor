@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mt-4">Websites</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>URL</th>
+            <th>Status</th>
+            <th>Domain Expiry</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for website in websites %}
+        <tr>
+            <td>{{ website.name }}</td>
+            <td>{{ website.url }}</td>
+            <td>
+                {% if website.status == "200" %}
+                <span class="badge badge-success">Alive</span>
+                {% elif website.status == "404" %}
+                <span class="badge badge-danger">Not Found</span>
+                {% elif website.status == "503" %}
+                <span class="badge badge-warning">Server Error</span>
+                {% else %}
+                <span class="badge badge-secondary">Unknown</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if website.domain_expiry %}
+                    {% set days_remaining = (website.domain_expiry - now).days %}
+                    {% if days_remaining > 60 %}
+                        <span class="badge badge-success">{{ days_remaining }} days</span>
+                    {% elif days_remaining > 45 %}
+                        <span class="badge badge-warning">{{ days_remaining }} days</span>
+                    {% else %}
+                        <span class="badge badge-danger">{{ days_remaining }} days</span>
+                    {% endif %}
+                {% else %}
+                    <span class="badge badge-secondary">N/A</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{{ url_for('website_dashboard', id=website.id) }}" class="btn btn-info">Dashboard</a>
+                <a href="{{ url_for('edit_website', id=website.id) }}" class="btn btn-primary edit-btn" onclick="return confirmEdit();">Edit</a>
+                <form action="{{ url_for('delete_website', id=website.id) }}" method="post" style="display: inline-block;">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this website?');">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<form action="{{ url_for('check_status') }}" method="post">
+    <button type="submit" class="btn btn-primary">Check Status</button>
+</form>
+
+
+<script>
+    function refreshPage() {
+        location.reload(); // Reload the page
+    }
+
+    // Call the refreshPage function every minute (60,000 milliseconds)
+    setInterval(refreshPage, 60000);
+</script>
+<script>
+    function confirmEdit() {
+        return confirm('Are you sure you want to edit this website?');
+    }
+</script>
+{% endblock %}

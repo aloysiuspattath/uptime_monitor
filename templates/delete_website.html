@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Website</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Delete Website</h1>
+        <p>Are you sure you want to delete "{{ website.name }}"?</p>
+        <form action="{{ url_for('delete_website', id=website.id) }}" method="post">
+            <button type="submit">Delete</button>
+        </form>
+        <a href="{{ url_for('index') }}">Cancel</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Website Monitor{% endblock %}</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Add your custom styles here */
+        body {
+            padding-top: 60px; /* Adjust according to your header height */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .navbar {
+            margin-bottom: 20px;
+        }
+        .footer {
+            margin-top: auto;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    {% if message %}
+    <div class="alert alert-{{ message.type }} alert-dismissible fade show" role="alert">
+        {{ message.text }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+<!-- HTML for flash message popup -->
+<div class="flash-message-container">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                    <div class="flash-message alert alert-primary" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+</div>
+
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="#">Website Monitor</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/website/add">Add Website</a>
+            </li>
+        </ul>
+        <ul class="navbar-nav">
+            {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link logout-link" href="/logout">Logout</a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/login">Login</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
+<main role="main" class="container">
+    {% block content %}
+    <!-- Content from child templates will be inserted here -->
+    {% endblock %}
+</main>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Link to Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Include Luxon for date and time handling -->
+<script src="https://cdn.jsdelivr.net/npm/luxon"></script>
+<!-- Include the Chart.js adapter for Luxon -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js" integrity="sha512-UXumZrZNiOwnTcZSHLOfcTs0aos2MzBWHXOHOuB0J/R44QB0dwY5JgfbvljXcklVf65Gc4El6RjZ+lnwd2az2g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js" integrity="sha512-wUYbRPLV5zs6IqvWd88HIqZU/b8TBx+I8LEioQ/UC0t5EMCLApqhIAnUg7EsAzdbhhdgW07TqYDdH3QEXRcPOQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Add event listener to logout link
+        const logoutLink = document.querySelector(".logout-link");
+        if (logoutLink) {
+            logoutLink.addEventListener("click", function(event) {
+                // Prevent default link behavior
+                event.preventDefault();
+                
+                // Show confirmation dialog
+                if (confirm("Are you sure you want to logout?")) {
+                    // If user confirms, proceed with logout
+                    window.location.href = this.getAttribute("href");
+                } else {
+                    // If user cancels, do nothing
+                    return false;
+                }
+            });
+        }
+    });
+</script>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            if (flashMessages) {
+                flashMessages.forEach(function(message) {
+                    setTimeout(function() {
+                        message.style.display = 'none';
+                    }, 1500); // Hide after 5 seconds (5000 milliseconds)
+                });
+            }
+        });
+</script>
+
+<footer class="footer mt-auto py-3 bg-light">
+    <div class="container text-center">
+        <span class="text-muted">© 2024 Website Monitor. All rights reserved.</span>
+    </div>
+</footer>
+
+</body>
+</html>
